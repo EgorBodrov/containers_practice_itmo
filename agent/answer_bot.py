@@ -41,8 +41,6 @@ class AnswerBot:
             "messages": messages
         })
         self.memory[session_id] = answer["messages"]
-
-        print(self.memory[session_id])
         
         return answer["messages"][-1].content
 
@@ -60,12 +58,9 @@ if __name__ == "__main__":
 
 
     llm = ChatOpenAI(
+        api_key=os.environ.get("OPENAI_API_KEY"),
+        base_url=os.environ.get("OPENAI_BASE_URL"),
         model="gpt-4o",
-        temperature=0,
-        max_tokens=None,
-        timeout=None,
-        max_retries=2,
-        api_key=os.environ["OPENAI_API_KEY"],
     )
     encoder_model = SentenceTransformer("deepvk/USER-bge-m3", device=0 if is_available() else -1)
     retriever = Retriever(encoder_model=encoder_model)

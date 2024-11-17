@@ -1,0 +1,22 @@
+FROM python:3.12 AS builder
+
+WORKDIR /app
+
+COPY . . 
+RUN python -m pip install --no-cache-dir poetry 
+RUN poetry config virtualenvs.in-project true
+RUN poetry install
+
+FROM python:3.12
+COPY --from=builder /app /app
+
+ENV VIRTUAL_ENV=/app/.venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+WORKDIR /app/backend
+
+VOLUME /app/backend/data
+
+EXPOSE 4242
+
+ENTRYPOINT ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "4242"]

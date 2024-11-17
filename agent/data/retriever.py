@@ -8,11 +8,16 @@ from qdrant_client import QdrantClient, models
 
 
 class Retriever:
-    def __init__(self, encoder_model: SentenceTransformer) -> None:
+    def __init__(self, encoder_model: SentenceTransformer, host: str = None, port: str = None, url: str = None) -> None:
         self._encoder = encoder_model
 
-        save_data_path = Path(__file__).parent.resolve() / "qdrant_db"
-        self._client = QdrantClient(path=save_data_path)
+        if host and port:
+            self._client = QdrantClient(host, port=port)
+        elif url:
+            self._client = QdrantClient(url=url)
+        else:
+            save_data_path = Path(__file__).parent.resolve() / "qdrant_db"
+            self._client = QdrantClient(path=save_data_path)
     
     def init_database(self, path_to_data: Path | str, collection_name: str = "scientists"):
         with open(path_to_data, "r+", encoding="utf-8") as file:

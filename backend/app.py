@@ -16,19 +16,24 @@ from agent import AnswerBot
 
 load_dotenv(Path(__file__).parent.parent.resolve() / ".env")
 
+DATA_PATH = Path(__file__).parent / "data"
+RAW_DATA_PATH = Path(__file__).parent.parent / "agent" / "data" / "data_raw.txt"
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     llm = ChatOpenAI(
+        api_key=os.environ.get("OPENAI_API_KEY"),
+        base_url=os.environ.get("OPENAI_BASE_URL"),
         model="gpt-4o",
-        temperature=0,
-        max_tokens=None,
-        timeout=None,
-        max_retries=2,
-        api_key=os.environ["OPENAI_API_KEY"],
     )
-    encoder_model = SentenceTransformer("deepvk/USER-bge-m3", device=0 if is_available() else -1)
-    app.state.answer_bot = AnswerBot(llm, Retriever(encoder_model=encoder_model))
+    encoder_model = SentenceTransformer("deepvk/USER-bge-m3", device="cuda" if is_available() else "cpu")
+    retriever = Retriever(encoder_model=encoder_model)
+    try:
+        retriever.init_database(path_to_data=RAW_DATA_PATH)
+    except ValueError:
+        pass
+    app.state.answer_bot = AnswerBot(llm, retriever=retriever)
     yield
 
 
@@ -44,4 +49,8 @@ async def ping():
 async def commit_question(request: Request, question: QuestionBody):
     bot = request.app.state.answer_bot
     data = BotAnswer(answer=bot.invoke(query=question.question, session_id=question.session_id))
+
+    with open(DATA_PATH / f"{question.session_id}_data", "w+") as file:
+        file.write(f"{question.question}\n{data.answer}\n")
+
     return JSONResponse(content=data.model_dump())
