@@ -30,6 +30,8 @@ uvicorn = "^0.32.0"
 
 [tool.poetry.group.frontend.dependencies]
 streamlit = "^1.40.1"
+pydantic = "^2.10.1"
+python-dotenv = "^1.0.1"
 
 
 [[tool.poetry.source]]

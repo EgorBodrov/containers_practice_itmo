@@ -28,11 +28,8 @@ async def lifespan(app: FastAPI):
         model="gpt-4o",
     )
     encoder_model = SentenceTransformer("deepvk/USER-bge-m3", device="cuda" if is_available() else "cpu")
-    retriever = Retriever(encoder_model=encoder_model)
-    try:
-        retriever.init_database(path_to_data=RAW_DATA_PATH)
-    except ValueError:
-        pass
+    url = os.environ.get("QDRANT_URL")
+    retriever = Retriever(encoder_model=encoder_model, url=url)
     app.state.answer_bot = AnswerBot(llm, retriever=retriever)
     yield
 
