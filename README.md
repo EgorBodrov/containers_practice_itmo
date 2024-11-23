@@ -4,6 +4,8 @@
 
 - [Лабораторная работа №1](https://github.com/EgorBodrov/containers_practice_itmo/tree/lab1)
 
+- [Лабораторная работа №2](https://github.com/EgorBodrov/containers_practice_itmo/tree/lab2)
+
 
 ## Описание проекта
 
@@ -13,3 +15,4 @@
 - **agent**. LLM BOT. Для запуска потребуется `OPENAI_API_KEY` и `OPENAI_BASE_URL` в качестве ключа для запуска LLM и прокси сервер.
 - **frontend**. Streamlit приложение с чатом
 - **backend**. FastApi приложение с пост запросом `commit_question` для ответа на вопрос. Приложения независимо от фронта.
+- **qdrant**. Векторное хранилище с эмбеддингами.
