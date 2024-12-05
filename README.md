@@ -6,6 +6,7 @@
 
 - [Лабораторная работа №2](https://github.com/EgorBodrov/containers_practice_itmo/tree/lab2)
 
+- [Лабораторная работа №3](https://github.com/EgorBodrov/containers_practice_itmo/tree/lab3)
 
 ## Описание проекта
 
