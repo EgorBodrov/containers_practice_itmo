@@ -8,6 +8,8 @@
 
 - [Лабораторная работа №3](https://github.com/EgorBodrov/containers_practice_itmo/tree/lab3)
 
+- [Лабораторная работа №3](https://github.com/EgorBodrov/containers_practice_itmo/tree/lab4)
+
 ## Описание проекта
 
 Простейший LLM-бот в виде чат-системы для ответа на вопросы про ученых.
