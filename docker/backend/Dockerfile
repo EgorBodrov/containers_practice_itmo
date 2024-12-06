@@ -6,7 +6,7 @@ ARG POETRY_VERSION
 COPY backend/ backend/
 COPY agent/ agent/
 COPY poetry.lock pyproject.toml README.md .
-RUN python -m pip install --no-cache-dir poetry==$POETRY_VERSION \
+RUN python -m pip install poetry==$POETRY_VERSION \
     && poetry config virtualenvs.in-project true \
     && poetry install --without frontend
 

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bot-qdrant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bot-qdrant
+  template:
+    metadata:
+      labels:
+        app: bot-qdrant
+        component: storage
+    spec:
+      containers:
+      - name: qdrant
+        image: qdrant
+        ports:
+        - containerPort: 6333
+        volumeMounts:
+        - mountPath: 
+          name: /qdrant/storage
+        imagePullPolicy: Never
+        readinessProbe:
+          exec:
+            command: ["curl", "-f", "http://localhost:6333/healthz"]
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 5
+      volumes:
+      - name: qdrant-data
+        persistentVolumeClaim:
+          claimName: qdrant-data

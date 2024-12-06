@@ -5,7 +5,7 @@ ARG POETRY_VERSION
 
 COPY agent/data agent/data/
 COPY poetry.lock pyproject.toml README.md .
-RUN python -m pip install --no-cache-dir poetry==$POETRY_VERSION \
+RUN python -m pip install poetry==$POETRY_VERSION \
     && poetry config virtualenvs.in-project true \
     && poetry install --only database
 
@@ -16,3 +16,4 @@ ENV VIRTUAL_ENV=/app/.venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 WORKDIR /app/agent/data
+CMD ["python", "init_qdrant.py", "--url", "http://qdrant-service:6333"]

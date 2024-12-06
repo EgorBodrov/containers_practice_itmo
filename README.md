@@ -1,45 +1,55 @@
-# Lab 2
+# Lab 4
 
 ## TODO
 
-- [x] Собрать compose проект
-- [x] Добавить минимум 3 сервиса один из которых init.
-- [x] Добавить автоматическую сборку контейнеров из Dockerfile
-- [x] Добавить жесткое именование сервисам
-- [x] Добавить `depends_on`
-- [x] Добавить `volume`
-- [x] Добавить проброс портов наружу
-- [x] Добавить ключ command и/или entrypoint
-- [x] Добавить healthcheck
-- [x] Вынести ENV из докер файлов в `.env`
-- [x] Указать network одну на всех
+- [x] минимум два Deployment , по количеству сервисов
+- [x] кастомный образ для минимум одного Deployment (т.е. не публичный и собранный из своего Dockerfile)
+- [x] минимум один Deployment должен содержать в себе контейнер и инит-контейнер
+- [x] минимум один Deployment должен содержать volume (любой)
+- [x] обязательно использование ConfigMap и/или Secret
+- [x] обязательно Service хотя бы для одного из сервисов (что логично, если они работают в связке)
+- [x] Liveness и/или Readiness пробы минимум в одном из Deployment
+- [x] обязательно использование лейблов (помимо обязательных selector/matchLabel , конечно)
 
+## Running
 
-## Содержимое docker-compose.yaml
-
-Файл `docker-compose.yaml` содержит в себе 4 сервиса:
-> **qdrant**. Векторное хранилище
-- Выкачивается из qdrant image из облака
-- Дополнительно устанавливается `curl`
-- Используем healthcheck на корректность запуска
-
-> **qdrant_init**. Инит контейнер
-- Запускается только в случае `healthy` статуса qdrant
-- Выполняет преобразование данных в эмбеддинги и сохранение в qdrant
-
-> **backend**. Backend сервис
-- Запускается только если `healthy` qdrant и закончено заполнение инит-контейнером
-- Содержит доп-переменные среды для использования (ключи для OpenAI из `.env` файла)
-- Внутри себя запускает FastAPI приложение вместе с LLM-агентом
-- История диалога хранится отдельно, использован volume
-
-> **frontend**. Frontend сервис
-- Зависит от backend
-- Streamlit приложение которое отправляет post-запрос в backend и отображает диалог
-
-## To run
-
+1. **Сбилдить контейнеры**
 ```shell
-docker compose up -d
+docker build -t qdrant -f docker/qdrant/Dockerfile . 
+docker build -t qdrant-init -f docker/qdrant/Dockerfile.init . --build-arg POETRY_VERSION=1.8.3
+docker build -t backend -f docker/backend/Dockerfile . --build-arg POETRY_VERSION=1.8.3
 ```
+
+2. **Перенести их в minikube (предварительно его следует стартануть)**
+```shell
+minikube start
+minikube image load qdrant
+minikube image load qdrant-init
+minikube image load backend
+```
+
+3. **Apply секретов и развертывание qdrant**.
+```shell
+kubectl apply -f secret.yaml
+kubectl apply -f volume.yaml
+kubectl apply -f qdrant_service.yaml
+kubectl apply -f qdrant_deploy.yaml
+```
+
+4. **Развертывание backend**. Тут же запустится инит-контейнер
+```shell
+kubectl apply -f backend_service.yaml
+kubectl apply -f backend_deploy.yaml
+```
+
+5. **Скрины**.
+> Проверка что поды заработали (у backend два инит-сервиса)
+
+![alt](./k8s/images/running_kuber.png)
+
+> Проверяем что можем достучаться до endpoint развернутого контейнера с ботом
+
+![alt](./k8s/images/url_from_container.png)
+
+
 # containers_project

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bot-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bot-backend
+  template:
+    metadata:
+      labels:
+        app: bot-backend
+    spec:
+      initContainers:
+      - name: wait-for-qdrant
+        image: busybox
+        command: ['sh', '-c', 'until wget -q --spider http://qdrant-service:6333/healthz; do echo waiting for qdrant; sleep 5; done']
+      - name: qdrant-init
+        image: qdrant-init
+        imagePullPolicy: Never
+      containers:
+      - name: backend
+        image: backend
+        ports:
+        - containerPort: 4242
+        envFrom:
+        - secretRef:
+            name: bot-secret
+        imagePullPolicy: Never
